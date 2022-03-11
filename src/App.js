@@ -9,7 +9,10 @@ import ShopPage from './pages/shop/shop.component.jsx'
 import Header from './components/header/header.component';
 import SignInAndSignOutUpPage from './pages/sign-in-and-sign-out/sign-in-and-sign-up.component';
 
-import { auth } from './firebase/firebase.utils';
+import { auth, createUserProfileDocument } from './firebase/firebase.utils';
+import { onSnapshot } from "firebase/firestore";
+
+
 
 class App extends React.Component {
 
@@ -21,18 +24,38 @@ class App extends React.Component {
     }
   }
 
-  unsubscribeFromAuth = null
+  unsubscribeFromAuth = null;
+  unsub = null;
 
   componentDidMount(){
-    this.unsubscribeFromAuth = auth.onAuthStateChanged(user => {
-      this.setState({ currentUser: user });
+    this.unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth => {
 
-      console.log(user);
-    })
+      if(userAuth){
+        const userRef = await createUserProfileDocument(userAuth);
+
+        this.unsub = onSnapshot(userRef, (snapShot) => {
+          //console.log("Current data: ", snapShot.data());
+          //console.log("ID: ", snapShot.id);
+          
+          this.setState({
+            currentUser: {
+              id: snapShot.id,
+              ...snapShot.data()
+            }
+          }, () => {
+            console.log("State: ", this.state);
+          });
+        });
+        
+      }
+
+      this.setState({ currentUser: userAuth });
+    });
   }
 
   componentWillUnmount() {
     this.unsubscribeFromAuth();
+    this.unsub();
   }
 
   render() {
