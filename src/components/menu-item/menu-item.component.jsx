@@ -5,11 +5,10 @@ import { useNavigate } from "react-router-dom";
 
 import './menu-item.styles.scss';
 
-const MenuItem = ({ title, imageUrl, size, history, linkUrl, match }) => {
+const MenuItem = ({ title, imageUrl, size, linkUrl }) => {
     const navigate = useNavigate();
 
     return(
-        //<div className={`${size} menu-item`} onClick={() => history.push(`${match.url}${linkUrl}`)}
         
         <div className={`${size} menu-item`} onClick={() => navigate(`${linkUrl}`)}
         >
@@ -28,4 +27,3 @@ const MenuItem = ({ title, imageUrl, size, history, linkUrl, match }) => {
 };
 
 export default MenuItem;
-//export default withRouter(MenuItem);
