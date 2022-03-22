@@ -1,5 +1,6 @@
 import React from 'react';
 import {BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { connect } from "react-redux";
 import { createStructuredSelector } from 'reselect';
 
@@ -11,6 +12,9 @@ import ShopPage from './pages/shop/shop.component.jsx'
 import Header from './components/header/header.component';
 import SignInAndSignOutUpPage from './pages/sign-in-and-sign-out/sign-in-and-sign-up.component';
 import CheckoutPage from './pages/checkout/checkout.component';
+
+import CollectionsOverview from "./components/collections-overview/collections-overview.component";
+import CollectionPage from "./pages/collection/collection.component";
 
 import { auth, createUserProfileDocument } from './firebase/firebase.utils';
 import { setCurrentUser } from './redux/user/user.actions';
@@ -69,7 +73,10 @@ class App extends React.Component {
         <Header />
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/shop" element={<ShopPage />} />
+          <Route path="/shop" >
+            <Route index element={<CollectionsOverview />} />
+            <Route path=":collectionId" element={<CollectionPageWrapper />} />
+          </Route>
           <Route exact path="/checkout" element={<CheckoutPage />} />
           <Route path="/signin" element={
           <RequireAuth redirectTo="/" user={this.props.currentUser}>
@@ -83,6 +90,11 @@ class App extends React.Component {
   
   
 }
+
+const CollectionPageWrapper = (props) => {
+  const { collectionId } = useParams();
+  return <CollectionPage collectionId={collectionId} {...props} />
+};
 
 function RequireAuth({ children, redirectTo , user}) {
   return user ? <Navigate to={redirectTo}/> : children;
